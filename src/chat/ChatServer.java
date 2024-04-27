@@ -1,5 +1,5 @@
 package chat;
-//some comment
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -106,6 +106,19 @@ public class ChatServer extends JFrame {
 			} catch (Exception e) {
 				server.logMessage("Setup Error: " + e.getMessage());
 			}
+
+			// Send join message to all clients
+			String joinMessage = "Client " + id + " joined";
+        	for (ClientHandler client : ChatServer.clients) {
+            if (client != this) {
+                try {
+                    client.output.writeUTF(Encryption.encrypt(client.AESKey, joinMessage));
+                    client.output.flush();
+                } catch (Exception e) {
+                    server.logMessage("Encryption Error: " + e.getMessage());
+                }
+            }
+        }
 		}
 
 		@Override
@@ -144,6 +157,19 @@ public class ChatServer extends JFrame {
 					}
 				}
 			} catch (IOException e) {
+				// Broadcast a "Client X left" message to all other clients
+				String leaveMessage = "Client " + id + " left";
+				for (ClientHandler client : ChatServer.clients) {
+					if (client != this) {
+						try {
+							client.output.writeUTF(Encryption.encrypt(client.AESKey, leaveMessage));
+							client.output.flush();
+						} catch (Exception ex) {
+							server.logMessage("Encryption Error: " + ex.getMessage());
+						}
+					}
+				}
+	
 				ChatServer.clients.remove(this);
 			} finally {
 				try {
