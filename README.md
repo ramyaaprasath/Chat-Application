@@ -18,7 +18,7 @@ This is a simple chat server implemented in Java. It uses a variety of advanced 
 **Private Messaging:** The server currently broadcasts all messages to all clients. The ability for clients to send private messages to each other could be added.
 
 ## Advanced Java Topics Used
-**Multithreading: **The server uses an ExecutorService to manage a pool of threads. Each client is handled by a separate thread.
+**Multithreading:** The server uses an ExecutorService to manage a pool of threads. Each client is handled by a separate thread.
 
 **Networking:** The server uses the ServerSocket class to listen for incoming connections, and the Socket class to communicate with clients.
 
