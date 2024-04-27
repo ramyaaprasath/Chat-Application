@@ -199,36 +199,22 @@ public class ChatClient extends JFrame {
     private void logMessage(String msg, boolean isSentByClient) {
         SwingUtilities.invokeLater(() -> {
             // Create a JPanel as a chat bubble
-            JPanel bubble = new JPanel(new BorderLayout());
+            JPanel bubble = new JPanel();
+            bubble.setLayout(new BoxLayout(bubble, BoxLayout.Y_AXIS));
             bubble.setBorder(new EmptyBorder(10, 10, 10, 10));
-            bubble.setOpaque(false);
-
-            // Create a JPanel for the message content
-            JPanel messageContent = new JPanel();
-            messageContent.setLayout(new BoxLayout(messageContent, BoxLayout.Y_AXIS));
-            messageContent.setBorder(new EmptyBorder(5, 10, 5, 10));
-            messageContent.setBackground(isSentByClient ? new Color(114, 137, 218, 64) : new Color(211, 211, 211, 128));
+            bubble.setBackground(new Color(0.9f, 0.9f, 0.9f)); // Lighter gray color
 
             // Add the name to the bubble
             JLabel nameLabel = new JLabel(isSentByClient ? "You" : "Friend");
-            nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
-            nameLabel.setForeground(isSentByClient ? Color.BLUE : Color.BLACK);
-            messageContent.add(nameLabel);
+            nameLabel.setForeground(clientColor);
+            bubble.add(nameLabel);
 
             // Add the message to the bubble
             JLabel msgLabel = new JLabel(msg);
-            msgLabel.setForeground(Color.BLACK);
-            messageContent.add(msgLabel);
-
-            // Add the message content to the bubble
-            bubble.add(messageContent, isSentByClient ? BorderLayout.EAST : BorderLayout.WEST);
+            bubble.add(msgLabel);
 
             // Add the bubble to the messagePane
             messagePane.insertComponent(bubble);
-
-            // Add a spacer after each bubble
-            messagePane.insertComponent(Box.createRigidArea(new Dimension(0, 10)));
-
             try {
                 doc.insertString(doc.getLength(), "\n", null); // Add a newline after each bubble
             } catch (BadLocationException e) {
