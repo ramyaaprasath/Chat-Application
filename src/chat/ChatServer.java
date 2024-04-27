@@ -24,6 +24,7 @@ public class ChatServer extends JFrame {
 	private JTextArea messageArea;
 	private static final int PORT = 9898;
 	private static ArrayList<ClientHandler> clients = new ArrayList<>();
+	private static ArrayList<String> usernames = new ArrayList<>();
 	private ExecutorService pool = Executors.newFixedThreadPool(8); 
 
 	public ChatServer() {
@@ -91,9 +92,11 @@ public class ChatServer extends JFrame {
 		private SecretKey AESKey;
 		private int id;
 		private static int nextId = 1;
+		private String username;
 
 		public ClientHandler(Socket socket, ChatServer server) {
 			this.id = ClientHandler.nextId;
+			this.username = username;
 			ClientHandler.nextId++;
 			this.socket = socket;
 			this.server = server;
@@ -139,6 +142,8 @@ public class ChatServer extends JFrame {
 					if (AESKey != null) {
 						
 						ChatServer.clients.add(this);
+						ChatServer.usernames.add(username);
+						sendUserList();
 						while (true) {
 							String encryptedMsg = input.readUTF();
 							try {
@@ -171,6 +176,8 @@ public class ChatServer extends JFrame {
 				}
 	
 				ChatServer.clients.remove(this);
+				ChatServer.usernames.remove(username);
+				sendUserList();
 			} finally {
 				try {
 					socket.close();
@@ -179,7 +186,19 @@ public class ChatServer extends JFrame {
 				}
 			}
 		}
+
+	private void sendUserList() {
+		String userList = "USERLIST " + String.join(",", ChatServer.usernames);
+            for (ClientHandler client : ChatServer.clients) {
+                try {
+                    client.output.writeUTF(Encryption.encrypt(client.AESKey, userList));
+                    client.output.flush();
+                } catch (Exception e) {
+                    server.logMessage("Encryption Error: " + e.getMessage());
+                }
+            }
 	}
+}
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
